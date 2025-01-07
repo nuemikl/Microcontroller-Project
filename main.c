@@ -1,8 +1,22 @@
 /*
-K1½øĞĞ²Ù×÷ÊıÑ¡Ôñ
-K2½øĞĞ+1²Ù×÷
-K3½áÊøÉèÖÃ
-K4½øĞĞ-1²Ù×÷
+K1è¿›è¡Œæ“ä½œæ•°é€‰æ‹©
+K2è¿›è¡Œ+1æ“ä½œ
+K3ç»“æŸè®¾ç½®
+K4è¿›è¡Œ-1æ“ä½œ
+
+è¿™é‡Œä½¿ç”¨çš„èŠ¯ç‰‡ä¸ºstc89c52rcï¼Œä¸ºæ™®ä¸­51å®éªŒæ¿
+å®éªŒå®¤ç°åœ¨ç”¨çš„æ˜¯stc89c516ï¼ˆ2025.1.9ï¼‰æœ‰ä¸€éƒ¨åˆ†éœ€è¦æ¥çº¿
+æ¥çº¿æ—¶è¦æ³¨æ„
+sbit K1=P3^1;
+sbit K2=P3^0;
+sbit K3=P3^2;
+sbit K4=P3^3;
+è¿™4å¥å®šä¹‰äº†ç‹¬ç«‹æŒ‰é”®å¯¹åº”çš„ç«¯å£ï¼Œéœ€è¦å¯¹åº”çš„é“¾æ¥ä¸Š
+K1->P3_1,K2->P3_0
+K3->P3_2,K4->P3_3
+å¦åˆ™ç‹¬ç«‹æŒ‰é”®çš„åŠŸèƒ½ä¼šå’Œç¨‹åºè®¾å®šçš„ä¸ä¸€æ ·
+
+
 */
 
 #include "reg51.h"
@@ -18,15 +32,13 @@ sbit K4=P3^3;
 uchar secjmpflag=0;//+1S
 uint second=49,minute=59,hour=11;
 uint date=7,month=1,year=2025;
-uint MonthVEC[12] = {31,31,28,31,30,31,30,31,31,30,31,30};//Æ½Äê 12-1-2-..-11    %12 Â³°ôĞÔ
-uint S_MonthVEC[12] = {31,31,29,31,30,31,30,31,31,30,31,30};//ÈòÄê 12-1-2-..-11
+uint MonthVEC[12] = {31,31,28,31,30,31,30,31,31,30,31,30};//å¹³å¹´ 12-1-2-..-11    %12 é²æ£’æ€§
+uint S_MonthVEC[12] = {31,31,29,31,30,31,30,31,31,30,31,30};//é—°å¹´ 12-1-2-..-11
 uchar code WeekMod[7][3] = {"Mon","Tue","Wed","Thr","Fri","Sat","Sun"};
 uint cur_location[6] = {0x84,0x87,0x8A,0x80+0x40+2,0x80+0x40+5,0x80+0x40+8};//cursor location
 uchar K3_flag = 0;
 uchar K4_flag = 0;
-uint set=0;//°´¼üÉèÖÃ
-
-//**********************Dwyane   2023-01-05**********************
+uint set=0;//æŒ‰é”®è®¾ç½®
 
 void display_Date_Week();
 void display_TIME();
@@ -62,14 +74,14 @@ void main(){
     {
       if(secjmpflag >= 20 && (K1 & K2 & K3  & K4)!=0 ){
         secjmpflag -= 20; ++second;
-        adjust_time();//¼ÓÃë½øÎ»
+        adjust_time();//åŠ ç§’è¿›ä½
         display_TIME();
-      }//²»°´¼üÒ»Ö±×ß
+      }//ä¸æŒ‰é”®ä¸€ç›´èµ°
       
-      if((hour|minute|second)==0x00)  display_Date_Week();//Ã¿Ìì0µã¸üĞÂÈÕÆÚ
+      if((hour|minute|second)==0x00)  display_Date_Week();//æ¯å¤©0ç‚¹æ›´æ–°æ—¥æœŸ
 
       if(K3 == 0 ){
-        delayLong();//Ïû²ü
+        delayLong();//æ¶ˆé¢¤
         delayLong();
         delayLong();
         K3_flag = 1;
@@ -77,7 +89,7 @@ void main(){
       }//K3
 			/*
       if(K4 == 0 ){
-        delayLong();//Ïû²ü
+        delayLong();//æ¶ˆé¢¤
         delayLong();
         delayLong();
         K4_flag = 1;
@@ -95,7 +107,7 @@ void timeacc() interrupt 3{
   TL1=0XB0;//(65536-50000)%256
   TR1=1;
   ++secjmpflag;
-}//¼ÆÊı
+}//è®¡æ•°
 
 void adjust_time(){
   while(second >= 60){
@@ -124,7 +136,7 @@ void adjust_date(){
             ++year;
           }
     }
-  }//ÈòÄêÅĞ¶Ï
+  }//é—°å¹´åˆ¤æ–­
   else{
     while(date >  MonthVEC[month% 12]){
         date -= MonthVEC[month% 12];
@@ -135,11 +147,11 @@ void adjust_date(){
             ++year;
           }
     }
-  }//Æ½ÄêÅĞ¶Ï
+  }//å¹³å¹´åˆ¤æ–­
 }//!! month-1
 
 void display_TIME(){
-  Command(0x80+0x40+1);//»»ĞĞ
+  Command(0x80+0x40+1);//æ¢è¡Œ
   showSingleChar('0'+hour / 10);//H
   showSingleChar('0'+hour % 10);
   showSingleChar(':');
@@ -151,9 +163,9 @@ void display_TIME(){
 }
 
 void display_Date_Week(){
-  //ÏÔÊ¾ÈÕÆÚ
+  //æ˜¾ç¤ºæ—¥æœŸ
   int temp,W,tempM,tempY;
-  Command(0x80+1);//Ëõ½ø
+  Command(0x80+1);//ç¼©è¿›
   //showSingleChar('0'+year/1000);//y
   showSingleChar('0'+year/1000);//y
 	showSingleChar('0'+year/100%10);
@@ -165,8 +177,8 @@ void display_Date_Week(){
   showSingleChar('-');
   showSingleChar('0'+date/10);//d
 	showSingleChar('0'+date%10);
-  showSingleChar(' ');//Ëõ½ø
-  //ĞÇÆÚÅĞ¶Ï »ùÄ·À­¶ûÉ­¼ÆËã¹«Ê½
+  showSingleChar(' ');//ç¼©è¿›
+  //æ˜ŸæœŸåˆ¤æ–­ åŸºå§†æ‹‰å°”æ£®è®¡ç®—å…¬å¼
 
   if (month < 3) {
         tempM = month + 12;
@@ -191,13 +203,13 @@ void delayLong(){
 }
 
 void Command(uchar com){
-	P0=com;	  //comÊäÈëÃüÁîÂë Í¨¹ıP2ËÍ¸øLCD
-	RS=0;      //RS=0 Ğ´ÃüÁî
+	P0=com;	  //comè¾“å…¥å‘½ä»¤ç  é€šè¿‡P2é€ç»™LCD
+	RS=0;      //RS=0 å†™å‘½ä»¤
   RW=0;
 	delayShort();	  
-	E=1;      //LCDÊ¹ÄÜ¶ËE ¸ßµçÆ½
+	E=1;      //LCDä½¿èƒ½ç«¯E é«˜ç”µå¹³
 	delayShort();
-	E=0;       //LCDÊ¹ÄÜ¶ËE µÍµçÆ½
+	E=0;       //LCDä½¿èƒ½ç«¯E ä½ç”µå¹³
 }
 
 void showSingleChar(uchar ch){
@@ -227,18 +239,18 @@ void clear(){
 void setpositions(){
   Command(0x0F);
   Command(cur_location[set]);
-}//¹â±êÉÁË¸
+}//å…‰æ ‡é—ªçƒ
 
 
 uint get_last_day_of_month(uint month, uint year) {
-  if (month == 2) { // 2ÔÂĞèÒªÅĞ¶ÏÆ½ÄêºÍÈòÄê
+  if (month == 2) { // 2æœˆéœ€è¦åˆ¤æ–­å¹³å¹´å’Œé—°å¹´
     if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) {
-      return 29; // ÈòÄê2ÔÂ29Ìì
+      return 29; // é—°å¹´2æœˆ29å¤©
     } else {
-      return 28; // Æ½Äê2ÔÂ28Ìì
+      return 28; // å¹³å¹´2æœˆ28å¤©
     }
   } else {
-    return MonthVEC[month - 1]; // ÆäËûÔÂ·İÖ±½Ó·µ»Ø¶ÔÓ¦µÄÌìÊı
+    return MonthVEC[month - 1]; // å…¶ä»–æœˆä»½ç›´æ¥è¿”å›å¯¹åº”çš„å¤©æ•°
   }
 }
 
@@ -301,18 +313,18 @@ void pressK2(){
   default:
     break;
   }
-}//switchÓï¾äÑ¡Ôñ
+}//switchè¯­å¥é€‰æ‹©
 
 
 void pressK4(){
   switch (set)
   {
     case 0:
-      if (year > 1850) year--; // ·ÀÖ¹Äê·İĞ¡ÓÚ1800
+      if (year > 1850) year--; // é˜²æ­¢å¹´ä»½å°äº1800
       break;
 
     case 1:
-      if (month > 1) month--; // ·ÀÖ¹ÔÂ·İĞ¡ÓÚ1
+      if (month > 1) month--; // é˜²æ­¢æœˆä»½å°äº1
       else {
         month = 12;
         year--;
@@ -320,7 +332,7 @@ void pressK4(){
       break;
 
     case 2:
-      if (date > 1) date--; // ·ÀÖ¹ÈÕÆÚĞ¡ÓÚ1
+      if (date > 1) date--; // é˜²æ­¢æ—¥æœŸå°äº1
       else {
 				
 				/*
@@ -339,7 +351,7 @@ void pressK4(){
       break;
 
     case 3:
-      if (hour > 0) hour--; // ·ÀÖ¹Ğ¡Ê±Ğ¡ÓÚ0
+      if (hour > 0) hour--; // é˜²æ­¢å°æ—¶å°äº0
       else {
         hour = 23;
         date--;
@@ -348,7 +360,7 @@ void pressK4(){
       break;
 
     case 4:
-      if (minute > 0) minute--; // ·ÀÖ¹·ÖÖÓĞ¡ÓÚ0
+      if (minute > 0) minute--; // é˜²æ­¢åˆ†é’Ÿå°äº0
       else {
         minute = 59;
         hour--;
@@ -361,7 +373,7 @@ void pressK4(){
       break;
 
     case 5:
-      if (second > 0) second--; // ·ÀÖ¹ÃëĞ¡ÓÚ0
+      if (second > 0) second--; // é˜²æ­¢ç§’å°äº0
       else {
         second = 59;
         minute--;
@@ -387,7 +399,7 @@ void pressK4(){
 void pressK3(){
   set = 0;
   setpositions();
-  //ÃëÕëÍ£Ö¹£¬¹â±êÉÁË¸                                                      
+  //ç§’é’ˆåœæ­¢ï¼Œå…‰æ ‡é—ªçƒ                                                      
 
   while(1){
     delayLong();
@@ -395,7 +407,7 @@ void pressK3(){
     //showSingleChar('0'+K3_flag);
 
     if(K3_flag == 0) {
-      Command(0x0C);//Óësetpositions()Ïà¶Ô£¬¹Ø±Õ¹â±ê
+      Command(0x0C);//ä¸setpositions()ç›¸å¯¹ï¼Œå…³é—­å…‰æ ‡
       display_Date_Week();
       display_TIME();
       break;
@@ -408,8 +420,8 @@ void pressK3(){
         delayLong();
         pressK2();
       }
-			 if(K4 == 0 ){
-        delayLong();//Ïû²ü
+      if(K4 == 0 ){
+        delayLong();//æ¶ˆé¢¤
         pressK4();
       }//K4
   }
